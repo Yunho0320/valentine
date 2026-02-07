@@ -85,7 +85,7 @@
     --ink:#5a2a3c;
 
     /* Smaller cards so 3 fit on a phone */
-    --cardW: clamp(86px, 26vw, 140px);
+    --cardW: clamp(70px, 24vw, 120px);
     --cardH: calc(var(--cardW) * 1.33);
     --gap: clamp(8px, 2.5vw, 14px);
     --radius: 22px;
@@ -259,20 +259,18 @@
   <!-- PAGE 2 -->
   <div id="page2" class="page">
     <img class="gif" src="flower2.gif" alt="Celebration">
-    <h1>Yay! Wooooo! I love you! 💖</h1>
-    <div class="subtitle">Best. Valentine. Ever.</div>
+    <h1>Yay! Wooooo! I love you to the moon and back!</h1>
   </div>
 
   <!-- PAGE 3 -->
   <div id="page3" class="page">
     <img class="gif" src="present.gif" alt="Wait there's more">
-    <h1>Wait! There’s more! 🎁</h1>
+    <h1>Wait! There’s more!</h1>
     <div class="subtitle">
       Valentine’s Day and your birthday are only 2 weeks apart…<br>
-      I got you something 😌
+      I got you something
     </div>
-    <div class="message">Click below to see your surprise 🎁</div>
-    <button id="giftBtn" class="bigBtn">Click here 👀</button>
+    <button id="giftBtn" class="bigBtn">Click below to see your surprise</button>
   </div>
 
   <!-- PAGE 4 (Card game) -->
@@ -322,7 +320,7 @@
     "Really sure??",
     "Think again please 😢",
     "I’ll buy you flowers... 🌸",
-    "Last chance... 😭"
+    "Last chance....."
   ];
 
   let index = 0;
@@ -345,7 +343,7 @@
     if (page2Timer) clearTimeout(page2Timer);
     page2Timer = setTimeout(() => {
       showPage("page3");
-    }, 3000);
+    }, 7000);
   });
 
   giftBtn.addEventListener("click", () => {
@@ -500,13 +498,13 @@
     const id=Number(cardEl.dataset.id);
     const chosen=cards.find(c=>c.id===id);
 
-    setStatus(`You picked £${chosen.value} 💗`);
+    setStatus(`You picked £${chosen.value}!`);
 
     // Go to ending page after 5 seconds
     if (endTimer) clearTimeout(endTimer);
     endTimer = setTimeout(() => {
       showPage("page5");
-    }, 5000);
+    }, 7000);
 
     startBtn.disabled=false;
   }
@@ -519,7 +517,7 @@
     render();
     revealAll(false);
     setClickable(false);
-    setStatus("Press Start to play 💖");
+    setStatus("Press Start to play!");
   }
   init();
 </script>
