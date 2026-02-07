@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentine</title>
+
+<style>
+  /* ---------- Shared base ---------- */
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    padding: 22px 12px;
+    background: #fff0f6;
+  }
+
+  .cardShell{
+    background: white;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    width: min(560px, 92vw);
+    text-align:center;
+  }
+
+  @media (max-width: 360px){
+    .cardShell{ padding: 14px; }
+  }
+
+  img.gif{
+    width:100%;
+    border-radius:12px;
+    display:block;
+  }
+
+  h1{
+    margin: 14px 0 6px;
+    font-size: 28px;
+  }
+
+  .subtitle{
+    margin: 0 0 14px;
+    font-size: 18px;
+    color:#444;
+    line-height: 1.35;
+  }
+
+  button{
+    border:none;
+    padding: 12px 18px;
+    margin: 10px;
+    border-radius: 999px;
+    font-size: 16px;
+    cursor:pointer;
+  }
+
+  #yesBtn{ background:#ff4d8d; color:white; }
+  #noBtn{ background:#ddd; color:#111; }
+
+  .message{
+    margin-top:10px;
+    min-height:24px;
+    color:#444;
+  }
+
+  .bigBtn{
+    background:#111;
+    color:white;
+    padding: 12px 18px;
+  }
+
+  /* “pages” */
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  /* ---------- Card game styles (scoped) ---------- */
+  #giftGame{
+    --bg1:#ffffff;
+    --bg2:#fff2f8;
+    --ink:#5a2a3c;
+
+    /* Smaller cards so 3 fit on a phone */
+    --cardW: clamp(86px, 26vw, 140px);
+    --cardH: calc(var(--cardW) * 1.33);
+    --gap: clamp(8px, 2.5vw, 14px);
+    --radius: 22px;
+
+    color: var(--ink);
+    background:
+      radial-gradient(600px 400px at 20% 20%, #ffd6ea55, transparent 60%),
+      radial-gradient(700px 400px at 80% 70%, #ffe4f255, transparent 60%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    border-radius: 16px;
+    padding: 14px 10px;
+  }
+
+  /* Extra tiny phones: squeeze a bit more */
+  @media (max-width: 360px){
+    #giftGame{ --cardW: clamp(78px, 25vw, 120px); --gap: 8px; }
+  }
+
+  #giftGame .wrap{
+    width:min(900px, 100%);
+    display:grid;
+    gap: 14px;
+    justify-items:center;
+    text-align:center;
+    margin: 0 auto;
+  }
+
+  #giftGame h1{
+    margin:0;
+    font-size: clamp(22px, 5vw, 34px);
+    line-height: 1.2;
+  }
+
+  #giftGame .controls{
+    display:flex;
+    justify-content:center;
+  }
+
+  #giftGame .pill{
+    border: 2px solid #ff9ccf;
+    background: #ffb6da;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 800;
+    min-width: 160px;
+    box-shadow: 0 6px 0 #ff9ccf, 0 12px 20px #ff9ccf33;
+    transition: transform 0.1s ease;
+  }
+
+  #giftGame .pill:hover{ transform: translateY(-2px); }
+
+  #giftGame .pill:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+
+  #giftGame .status{
+    font-size: 15px;
+    opacity: .9;
+    min-height: 22px;
+  }
+
+  /* Always 3 cards in one row */
+  #giftGame .board{
+    width:100%;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap);
+    justify-items:center;
+    align-items:center;
+    padding: 8px 6px;
+  }
+
+  #giftGame .card{
+    width: var(--cardW);
+    height: var(--cardH);
+    perspective: 1000px;
+    position: relative;
+    user-select:none;
+  }
+
+  #giftGame .card button{
+    all: unset;
+    cursor: pointer;
+    width:100%;
+    height:100%;
+    display:block;
+    border-radius: var(--radius);
+    transform-style: preserve-3d;
+    transition: transform 650ms cubic-bezier(.2,.85,.2,1);
+  }
+
+  #giftGame .face{
+    position:absolute;
+    inset:0;
+    border-radius: var(--radius);
+    backface-visibility: hidden;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+  }
+
+  #giftGame .back{
+    background: #fff;
+    border: 3px solid #ffb6da;
+    box-shadow: 0 8px 0 #ffd1ea, 0 18px 30px #ffd1ea66;
+  }
+
+  #giftGame .back .label{
+    font-weight: 800;
+    font-size: clamp(12px, 3.6vw, 18px);
+    color:#ff69b4;
+  }
+
+  #giftGame .back .heart{
+    font-size: clamp(18px, 4.5vw, 30px);
+    margin-top:6px;
+  }
+
+  #giftGame .front{
+    transform: rotateY(180deg);
+    background: #fff;
+    border: 3px solid #ffcce6;
+    box-shadow: 0 8px 0 #ffe4f2, 0 18px 30px #ffd1ea66;
+  }
+
+  #giftGame .money{
+    display:grid;
+    gap: 6px;
+    place-items:center;
+    padding: 8px;
+  }
+
+  #giftGame .money .amt{
+    font-size: clamp(18px, 5.5vw, 46px);
+    font-weight: 900;
+    color:#ff4da6;
+    line-height: 1;
+  }
+
+  #giftGame .money .hint{
+    font-size:12px;
+    opacity:.75;
+  }
+
+  #giftGame .card.revealed button{
+    transform: rotateY(180deg);
+  }
+</style>
+</head>
+
+<body>
+
+<div class="cardShell">
+
+  <!-- PAGE 1 -->
+  <div id="page1" class="page active">
+    <img class="gif" src="flower-giving.gif" alt="Flower">
+    <h1>Hi Princess Kyu-Ree! 🌸</h1>
+    <div class="subtitle">Will you be my Valentine?</div>
+
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+
+    <div class="message" id="msg"></div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div id="page2" class="page">
+    <img class="gif" src="flower2.gif" alt="Celebration">
+    <h1>Yay! Wooooo! I love you! 💖</h1>
+    <div class="subtitle">Best. Valentine. Ever.</div>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div id="page3" class="page">
+    <img class="gif" src="present.gif" alt="Wait there's more">
+    <h1>Wait! There’s more! 🎁</h1>
+    <div class="subtitle">
+      Valentine’s Day and your birthday are only 2 weeks apart…<br>
+      I got you something 😌
+    </div>
+    <div class="message">Click below to see your surprise 🎁</div>
+    <button id="giftBtn" class="bigBtn">Click here 👀</button>
+  </div>
+
+  <!-- PAGE 4 (Card game) -->
+  <div id="page4" class="page">
+    <div id="giftGame">
+      <div class="wrap">
+        <h1>Kyu-Ree’s Valentine + BD Combo Set! 💖</h1>
+
+        <div class="controls">
+          <button id="startBtn" class="pill">Start / Shuffle</button>
+        </div>
+
+        <div id="status" class="status"></div>
+        <div id="board" class="board"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5 (Ending) -->
+  <div id="page5" class="page">
+    <!-- Put an ending gif in the same folder and name it: end.gif -->
+    <img class="gif" src="finish.gif" alt="Ending">
+    <h1>Happy Kyu-Ree, Happy Me!</h1>
+    
+  </div>
+
+</div>
+
+<script>
+  /* ---------- Page flow logic ---------- */
+  const pages = {
+    page1: document.getElementById("page1"),
+    page2: document.getElementById("page2"),
+    page3: document.getElementById("page3"),
+    page4: document.getElementById("page4"),
+    page5: document.getElementById("page5"),
+  };
+
+  function showPage(name){
+    Object.values(pages).forEach(p => p.classList.remove("active"));
+    pages[name].classList.add("active");
+  }
+
+  const noMessages = [
+    "Are you sure? 🥺",
+    "Really sure??",
+    "Think again please 😢",
+    "I’ll buy you flowers... 🌸",
+    "Last chance... 😭"
+  ];
+
+  let index = 0;
+  let page2Timer = null;
+
+  const msg = document.getElementById("msg");
+  const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const giftBtn = document.getElementById("giftBtn");
+  const backBtn = document.getElementById("backBtn");
+
+  noBtn.addEventListener("click", () => {
+    msg.textContent = noMessages[index] || noMessages[noMessages.length - 1];
+    if (index < noMessages.length - 1) index++;
+  });
+
+  yesBtn.addEventListener("click", () => {
+    showPage("page2");
+
+    if (page2Timer) clearTimeout(page2Timer);
+    page2Timer = setTimeout(() => {
+      showPage("page3");
+    }, 3000);
+  });
+
+  giftBtn.addEventListener("click", () => {
+    showPage("page4");
+  });
+
+
+
+
+  /* ---------- Card game logic ---------- */
+  const values = [50, 100, 200];
+
+  const board = document.getElementById("board");
+  const statusEl = document.getElementById("status");
+  const startBtn = document.getElementById("startBtn");
+
+  let cards = [];
+  let order = [0,1,2];
+  let phase = "idle";
+  let endTimer = null;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function setStatus(t){ statusEl.textContent = t || ""; }
+
+  function createCard(value, id){
+    const wrap = document.createElement("div");
+    wrap.className="card";
+    wrap.dataset.id=id;
+
+    const btn=document.createElement("button");
+
+    const back=document.createElement("div");
+    back.className="face back";
+    back.innerHTML=`<div class="label">LOVE CARD</div><div class="heart">💗</div>`;
+
+    const front=document.createElement("div");
+    front.className="face front";
+    front.innerHTML=`
+      <div class="money">
+        <div class="amt">£${value}</div>
+        <div class="hint">You got this one!</div>
+      </div>`;
+
+    btn.appendChild(back);
+    btn.appendChild(front);
+    wrap.appendChild(btn);
+
+    btn.addEventListener("click",()=>onPick(wrap));
+    return {id,value,el:wrap};
+  }
+
+  function render(){
+    board.innerHTML="";
+    for(const idx of order) board.appendChild(cards[idx].el);
+  }
+
+  function revealAll(on){
+    for(const c of cards) c.el.classList.toggle("revealed",on);
+  }
+
+  function setClickable(enabled){
+    for(const c of cards){
+      c.el.querySelector("button").style.pointerEvents = enabled ? "auto":"none";
+    }
+  }
+
+  function shuffleInPlace(arr){
+    for(let i=arr.length-1;i>0;i--){
+      let j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+  }
+
+  async function animateShuffleOnce(duration=220){
+    const first=new Map();
+    const before=Array.from(board.children);
+    for(const el of before) first.set(el,el.getBoundingClientRect());
+
+    shuffleInPlace(order);
+    render();
+
+    const after=Array.from(board.children);
+    for(const el of after){
+      const last=el.getBoundingClientRect();
+      const f=first.get(el);
+      if(!f) continue;
+
+      const dx=f.left-last.left;
+      const dy=f.top-last.top;
+
+      el.style.transition="none";
+      el.style.transform=`translate(${dx}px,${dy}px)`;
+    }
+
+    board.getBoundingClientRect();
+
+    for(const el of after){
+      el.style.transition=`transform ${duration}ms linear`;
+      el.style.transform="translate(0,0)";
+    }
+
+    await sleep(duration+20);
+
+    for(const el of after){
+      el.style.transition="";
+      el.style.transform="";
+    }
+  }
+
+  async function shuffleAnimation(){
+    for(let i=0;i<12;i++){
+      await animateShuffleOnce();
+      await sleep(20);
+    }
+  }
+
+  async function startSequence(){
+    if(phase!=="idle" && phase!=="done") return;
+
+    // cancel any pending end transition
+    if (endTimer) { clearTimeout(endTimer); endTimer = null; }
+
+    phase="revealing";
+    startBtn.disabled=true;
+    setClickable(false);
+
+    setStatus("Revealing...");
+    revealAll(true);
+    await sleep(800);
+
+    revealAll(false);
+    await sleep(400);
+
+    phase="shuffling";
+    setStatus("Shuffling...");
+    await shuffleAnimation();
+
+    phase="choosing";
+    setStatus("Pick one 💖");
+    setClickable(true);
+  }
+
+  function onPick(cardEl){
+    if(phase!=="choosing") return;
+
+    phase="done";
+    setClickable(false);
+
+    cardEl.classList.add("revealed");
+
+    const id=Number(cardEl.dataset.id);
+    const chosen=cards.find(c=>c.id===id);
+
+    setStatus(`You picked £${chosen.value} 💗`);
+
+    // Go to ending page after 5 seconds
+    if (endTimer) clearTimeout(endTimer);
+    endTimer = setTimeout(() => {
+      showPage("page5");
+    }, 5000);
+
+    startBtn.disabled=false;
+  }
+
+  startBtn.addEventListener("click",startSequence);
+
+  function init(){
+    cards=values.map((v,i)=>createCard(v,i));
+    order=[0,1,2];
+    render();
+    revealAll(false);
+    setClickable(false);
+    setStatus("Press Start to play 💖");
+  }
+  init();
+</script>
+
+</body>
+</html>
