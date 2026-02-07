@@ -267,7 +267,7 @@
     <img class="gif" src="present.gif" alt="Wait there's more">
     <h1>Wait! There’s more!</h1>
     <div class="subtitle">
-      Valentine’s Day and your birthday are only 2 weeks apart…<br>
+      Valentine’s Day and your birthday are only 2 weeks apart!<br>
       I got you something!
     </div>
     <button id="giftBtn" class="bigBtn">Click below to see your surprise!</button>
@@ -343,7 +343,7 @@
     if (page2Timer) clearTimeout(page2Timer);
     page2Timer = setTimeout(() => {
       showPage("page3");
-    }, 7000);
+    }, 5000);
   });
 
   giftBtn.addEventListener("click", () => {
@@ -354,7 +354,7 @@
 
 
   /* ---------- Card game logic ---------- */
-  const values = [50, 100, 200];
+  const values = [100, 150, 200];
 
   const board = document.getElementById("board");
   const statusEl = document.getElementById("status");
@@ -503,7 +503,7 @@
     if (endTimer) clearTimeout(endTimer);
     endTimer = setTimeout(() => {
       showPage("page5");
-    }, 7000);
+    }, 5000);
 
     startBtn.disabled=false;
   }
